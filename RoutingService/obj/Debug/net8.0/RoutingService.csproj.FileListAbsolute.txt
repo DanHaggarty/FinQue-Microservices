@@ -46,3 +46,6 @@ C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\obj\Debug\net8.0
 C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\obj\Debug\net8.0\RoutingService.pdb
 C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\obj\Debug\net8.0\RoutingService.genruntimeconfig.cache
 C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\obj\Debug\net8.0\ref\RoutingService.dll
+C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\obj\Debug\net8.0\RoutingService.sourcelink.json
+C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\bin\Debug\net8.0\Shared.dll
+C:\Users\dan_h\source\repos\FinQue-Microservices\RoutingService\bin\Debug\net8.0\Shared.pdb

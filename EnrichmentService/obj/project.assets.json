@@ -2989,6 +2989,16 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XmlDocument.dll": {}
         }
+      },
+      "Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Shared.dll": {}
+        }
       }
     }
   },
@@ -9119,6 +9129,11 @@
         "system.xml.xmldocument.4.3.0.nupkg.sha512",
         "system.xml.xmldocument.nuspec"
       ]
+    },
+    "Shared/1.0.0": {
+      "type": "project",
+      "path": "../Shared/Shared.csproj",
+      "msbuildProject": "../Shared/Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -9127,7 +9142,8 @@
       "Microsoft.Azure.Cosmos >= 3.51.0",
       "Microsoft.Azure.Cosmos.Table >= 1.0.8",
       "Microsoft.Extensions.Hosting >= 8.0.1",
-      "Microsoft.VisualStudio.Azure.Containers.Tools.Targets >= 1.22.1-Preview.1"
+      "Microsoft.VisualStudio.Azure.Containers.Tools.Targets >= 1.22.1-Preview.1",
+      "Shared >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -9162,7 +9178,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\dan_h\\source\\repos\\FinQue-Microservices\\Shared\\Shared.csproj": {
+              "projectPath": "C:\\Users\\dan_h\\source\\repos\\FinQue-Microservices\\Shared\\Shared.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

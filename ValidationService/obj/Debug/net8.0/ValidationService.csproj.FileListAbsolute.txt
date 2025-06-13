@@ -46,3 +46,6 @@ C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\obj\Debug\net
 C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\obj\Debug\net8.0\ValidationService.pdb
 C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\obj\Debug\net8.0\ValidationService.genruntimeconfig.cache
 C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\obj\Debug\net8.0\ref\ValidationService.dll
+C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\obj\Debug\net8.0\ValidationService.sourcelink.json
+C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\bin\Debug\net8.0\Shared.dll
+C:\Users\dan_h\source\repos\FinQue-Microservices\ValidationService\bin\Debug\net8.0\Shared.pdb

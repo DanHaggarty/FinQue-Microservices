@@ -9,7 +9,8 @@
       "RoutingService/1.0.0": {
         "dependencies": {
           "Microsoft.Extensions.Hosting": "8.0.1",
-          "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1-Preview.1"
+          "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.22.1-Preview.1",
+          "Shared": "1.0.0"
         },
         "runtime": {
           "RoutingService.dll": {}
@@ -396,6 +397,14 @@
             "fileVersion": "8.0.1024.46610"
           }
         }
+      },
+      "Shared/1.0.0": {
+        "runtime": {
+          "Shared.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -607,6 +616,11 @@
       "sha512": "sha512-n1ZP7NM2Gkn/MgD8+eOT5MulMj6wfeQMNS2Pizvq5GHCZfjlFMXV2irQlQmJhwA2VABC57M0auudO89Iu2uRLg==",
       "path": "system.diagnostics.eventlog/8.0.1",
       "hashPath": "system.diagnostics.eventlog.8.0.1.nupkg.sha512"
+    },
+    "Shared/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

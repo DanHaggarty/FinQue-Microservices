@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnrichmentService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+97318a8aafc19091053ee908eae82593b4bbaf09")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnrichmentService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnrichmentService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
