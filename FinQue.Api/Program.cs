@@ -1,9 +1,18 @@
+using Azure.Messaging.ServiceBus;
+using FinQue.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Configure Service Bus
+builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["ServiceBus:ConnectionString"]));
+builder.Services.AddSingleton<ServiceBusPublisher>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

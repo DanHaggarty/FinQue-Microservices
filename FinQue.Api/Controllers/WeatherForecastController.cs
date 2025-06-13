@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace TransactionService.Controllers
+namespace FinQue.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
