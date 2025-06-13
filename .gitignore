@@ -1,0 +1,28 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+
+# Visual Studio settings
+.vs/
+*.vscode/
+
+# Build results
+*.dll
+*.exe
+*.pdb
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# Frontend artifacts
+FinQueFrontend/node_modules/
+FinQueFrontend/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
