@@ -16,9 +16,10 @@ namespace FinQue.Api.Controllers
         private readonly ServiceBusSender _busSender;
         private readonly Container _cosmosContainer;
 
-        public TransactionsController(ServiceBusPublisher publisher, CosmosClient cosmosClient)
+        public TransactionsController(ServiceBusPublisher publisher, ServiceBusSender busSender, CosmosClient cosmosClient)
         {
             _publisher = publisher;
+            _busSender = busSender;
             _cosmosContainer = cosmosClient.GetContainer("finque-cosmos", "Transactions");
         }
 

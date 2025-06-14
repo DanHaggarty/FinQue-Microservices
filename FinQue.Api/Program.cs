@@ -4,24 +4,33 @@ using Microsoft.Azure.Cosmos;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Configure Service Bus
-builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["ServiceBus:ConnectionString"]));
-builder.Services.AddSingleton(new CosmosClient(builder.Configuration["Cosmos:ConnectionString"]));
+// Extract configuration values
+var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionString"];
+var queueName = builder.Configuration["ServiceBus:QueueName"];
+var cosmosConnectionString = builder.Configuration["Cosmos:ConnectionString"];
 
+// Register Service Bus Client and Sender
+builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnectionString));
+builder.Services.AddSingleton<ServiceBusSender>(sp =>
+{
+    var client = sp.GetRequiredService<ServiceBusClient>();
+    return client.CreateSender(queueName);
+});
+
+// Register Cosmos DB Client
+builder.Services.AddSingleton(new CosmosClient(cosmosConnectionString));
+
+// Register custom services
 builder.Services.AddSingleton<ServiceBusPublisher>();
 
+// MVC and Swagger
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -29,9 +38,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
