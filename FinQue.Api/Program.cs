@@ -1,11 +1,14 @@
 using Azure.Messaging.ServiceBus;
 using FinQue.Api.Services;
+using Microsoft.Azure.Cosmos;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Configure Service Bus
 builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["ServiceBus:ConnectionString"]));
+builder.Services.AddSingleton(new CosmosClient(builder.Configuration["Cosmos:ConnectionString"]));
+
 builder.Services.AddSingleton<ServiceBusPublisher>();
 
 builder.Services.AddControllers();
