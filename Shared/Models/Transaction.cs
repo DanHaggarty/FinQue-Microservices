@@ -1,8 +1,11 @@
-﻿namespace Shared.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Shared.Models;
 
 public class Transaction
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    [JsonPropertyName("id")]
+    public string id { get; set; } = Guid.NewGuid().ToString();
     public string FromAccount { get; set; } = string.Empty;
     public string ToAccount { get; set; } = string.Empty;
     public decimal Amount { get; set; }
