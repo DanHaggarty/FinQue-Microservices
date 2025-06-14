@@ -24,7 +24,7 @@ namespace RoutingService
         {
             _logger = logger;
             _busClient = busClient;
-            _processor = busClient.CreateProcessor(QueueNames.RoutingQueue, new ServiceBusProcessorOptions());
+            _processor = busClient.CreateProcessor(QueueNames.Inbound, new ServiceBusProcessorOptions());
             _cosmos = cosmosClient.GetContainer("FinQueDb", "Transactions");
         }
 
@@ -60,12 +60,12 @@ namespace RoutingService
                     targetQueue = "approval-queue";
 
                 tx.Tags.Add($"routed:{targetQueue}");
-                await _cosmos.ReplaceItemAsync(tx, tx.Id, new PartitionKey(tx.Id));
+                await _cosmos.ReplaceItemAsync(tx, tx.id, new PartitionKey(tx.id));
 
                 var sender = _busClient.CreateSender(targetQueue);
-                await sender.SendMessageAsync(new ServiceBusMessage(tx.Id));
+                await sender.SendMessageAsync(new ServiceBusMessage(tx.id));
 
-                _logger.LogInformation($"Transaction {tx.Id} routed to {targetQueue}");
+                _logger.LogInformation($"Transaction {tx.id} routed to {targetQueue}");
                 await args.CompleteMessageAsync(args.Message);
             }
             catch (Exception ex)
