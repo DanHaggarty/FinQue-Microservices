@@ -34,6 +34,8 @@ if (builder.Environment.IsProduction())
     {
         options.ListenAnyIP(80); // Only bind to port 80 in production (Azure)
     });
+
+    builder.WebHost.UseUrls("http://0.0.0.0:80");
 }
 
 var app = builder.Build();
