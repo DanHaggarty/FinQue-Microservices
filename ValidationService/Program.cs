@@ -13,7 +13,10 @@ var cosmosConnectionString = builder.Configuration["Cosmos:ConnectionString"];
 
 // Register Service Bus Client & Sender
 builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnectionString));
-builder.Services.AddSingleton<IMessageValidator, TransactionValidator>();
+//builder.Services.AddSingleton<IMessageValidator, TransactionValidator>();
+//builder.Services.AddSingleton<IMessageValidator, RiskValidator>();
+builder.Services.AddSingleton<TransactionValidator>();
+builder.Services.AddSingleton<RiskValidator>();
 builder.Services.AddSingleton<ServiceBusSender>(sp =>
 {
     var client = sp.GetRequiredService<ServiceBusClient>();

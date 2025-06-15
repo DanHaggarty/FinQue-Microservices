@@ -8,6 +8,12 @@ using Transaction = Shared.Models.Transaction;
 
 namespace ValidationService.Validators
 {
+    /// <summary>
+    /// Provides functionality to validate transactions and retrieve validation errors.
+    /// </summary>
+    /// <remarks>This class validates transactions based on specific rules, such as ensuring the transaction
+    /// ID is not null or empty and that the transaction amount is greater than zero. Use <see cref="IsValid"/> to
+    /// perform validation and retrieve detailed error messages if the transaction is invalid.</remarks>
     public class TransactionValidator : IMessageValidator
     {
         private readonly List<string> _errors = new();
