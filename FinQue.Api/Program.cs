@@ -12,15 +12,13 @@ var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionStr
 var queueName = builder.Configuration["ServiceBus:QueueName"];
 var cosmosConnectionString = builder.Configuration["Cosmos:ConnectionString"];
 
-// Register Service Bus Client and Sender
+// Register Azure dependencies
 builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnectionString));
 builder.Services.AddSingleton<ServiceBusSender>(sp =>
 {
     var client = sp.GetRequiredService<ServiceBusClient>();
     return client.CreateSender(queueName);
 });
-
-// Register Azure dependencies
 builder.Services.AddSingleton(new CosmosClient(cosmosConnectionString));
 builder.Services.AddSingleton<ServiceBusPublisher>();
 builder.Services.AddSingleton(sp =>
@@ -29,6 +27,8 @@ builder.Services.AddSingleton(sp =>
     return new SecretClient(vaultUri, new DefaultAzureCredential());
 });
 
+// Register custom services
+builder.Services.AddSingleton<ISecretProvider, SecretProvider>();
 
 // MVC
 builder.Services.AddControllers();
@@ -58,7 +58,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
 
 builder.Services.AddSwaggerGen();
 
