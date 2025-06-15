@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 
@@ -18,6 +19,8 @@ namespace FinQue.Api.Controllers
         private readonly Container _cosmosContainer;
         private readonly ServiceBusClient _serviceBusClient;
         private readonly IConfiguration _config;
+        private readonly SecretClient _secretClient;
+        private const string PURGEAUTHORIZATIONTOKENNAME = "PurgeAuthorizationToken";
 
         private static readonly string[] QueueNames = new[]
         {
@@ -25,24 +28,31 @@ namespace FinQue.Api.Controllers
         "transactions-highrisk",
         "transactions-inbound/$DeadLetterQueue"
         };
-        public AdminController(CosmosClient cosmosClient, ServiceBusClient serviceBusClient, IConfiguration config)
+        public AdminController(CosmosClient cosmosClient, ServiceBusClient serviceBusClient, IConfiguration config, SecretClient secret)
         {
             _cosmosContainer = cosmosClient.GetContainer("finque-cosmos", "Transactions");
             _serviceBusClient = serviceBusClient;
             _config = config;
+            _secretClient = secret; 
         }
 
         /// <summary>
         /// Purges all queues defined in <see cref="QueueNames"/>.
         /// Purges CosmosDb Transactions table.
         /// </summary>
+        /// <remarks>
+        /// Requires token from Azure Keyvault to execute purge.
+        /// </remarks>
         /// <returns>Purge complete message and purge counts.</returns>
         [HttpPost("purge")]
         public async Task<IActionResult> PurgeAll()
         {
-            // SECURITY CRITICAL - DO NOT ALTER!
-            var adminToken = _config["Admin:PurgeAuthorizationToken"];
-            if (string.IsNullOrEmpty(adminToken) || !Request.Headers.TryGetValue("X-Admin-Token", out var providedToken) || providedToken != adminToken)
+            // SECURITY CRITICAL - DO NOT ALTER TOKEN REQUIREMENTS WITHOUT AUTHORIZATION!
+            var secret = await _secretClient.GetSecretAsync(PURGEAUTHORIZATIONTOKENNAME);
+            var purgeAuthorizationToken = secret.Value.Value.ToString();
+            if (string.IsNullOrEmpty(purgeAuthorizationToken) ||
+                !Request.Headers.TryGetValue("X-Admin-Token", out var providedToken) ||
+                providedToken != purgeAuthorizationToken)
             {
                 return Unauthorized("Missing or invalid admin token.");
             }

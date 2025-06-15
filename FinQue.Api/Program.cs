@@ -1,4 +1,6 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using Azure.Security.KeyVault.Secrets;
 using FinQue.Api.Services;
 using Microsoft.Azure.Cosmos;
 using Microsoft.OpenApi.Models;
@@ -18,11 +20,15 @@ builder.Services.AddSingleton<ServiceBusSender>(sp =>
     return client.CreateSender(queueName);
 });
 
-// Register Cosmos DB Client
+// Register Azure dependencies
 builder.Services.AddSingleton(new CosmosClient(cosmosConnectionString));
-
-// Register custom services
 builder.Services.AddSingleton<ServiceBusPublisher>();
+builder.Services.AddSingleton(sp =>
+{
+    var vaultUri = new Uri("https://FinQueKeyVault.vault.azure.net/");
+    return new SecretClient(vaultUri, new DefaultAzureCredential());
+});
+
 
 // MVC
 builder.Services.AddControllers();
