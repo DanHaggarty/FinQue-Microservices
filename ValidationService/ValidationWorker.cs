@@ -22,6 +22,7 @@ public class ValidationWorker : BackgroundService
     private readonly RiskValidator _riskValidator;
     private readonly ServiceBusSender _deadLetterSender;
     private readonly ServiceBusSender _highRiskSender;
+    private readonly ServiceBusSender _validatedSender;
 
     public ValidationWorker(
         ILogger<ValidationWorker> logger, 
@@ -33,10 +34,15 @@ public class ValidationWorker : BackgroundService
         _logger = logger;
         _deadLetterSender = serviceBusClient.CreateSender("transactions-inbound/$DeadLetterQueue");
         _highRiskSender = serviceBusClient.CreateSender("transactions-highrisk");
-        _processor = serviceBusClient.CreateProcessor("transactions-inbound", new ServiceBusProcessorOptions());
+        _validatedSender = serviceBusClient.CreateSender("transactions-validated");
         _cosmosContainer = cosmosClient.GetContainer("finque-cosmos", "Transactions");
         _transactionValidator = transactionValidator;
         _riskValidator = riskValidator;
+
+        _processor = serviceBusClient.CreateProcessor("transactions-inbound", new ServiceBusProcessorOptions
+        {
+            AutoCompleteMessages = false
+        });
     }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
@@ -67,8 +73,18 @@ public class ValidationWorker : BackgroundService
 
             _logger.LogInformation("Transaction loaded: {Json}", JsonSerializer.Serialize(transaction));
 
+            // Deadletters message if transaction is invalid.
             if (!await ValidateTransactionAsync(transaction, args, id)) return;
+            // Adds to high risk queue if risk validation fails.
             await ValidateRiskAsync(transaction, id);
+
+            var validatedMessage = new ServiceBusMessage(JsonSerializer.Serialize(transaction))
+            {
+                Subject = "ValidatedTransaction"
+            };
+
+            await _validatedSender.SendMessageAsync(validatedMessage);
+            _logger.LogInformation("Transaction ID {Id} routed to transactions-validated queue after successful validation", id);
 
             await args.CompleteMessageAsync(args.Message);
         }
