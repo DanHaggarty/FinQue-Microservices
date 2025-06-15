@@ -47,7 +47,7 @@ public class ValidationWorker : BackgroundService
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-        Task.CompletedTask; // Not needed; work is done via StartAsync and message handler.
+        Task.CompletedTask;
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
@@ -58,7 +58,6 @@ public class ValidationWorker : BackgroundService
     private async Task HandleMessageAsync(ProcessMessageEventArgs args)
     {
         var id = args.Message.Body.ToString();
-
         _logger.LogInformation("Received ID: {Id}", id);
 
         try
@@ -68,31 +67,8 @@ public class ValidationWorker : BackgroundService
 
             _logger.LogInformation("Transaction loaded: {Json}", JsonSerializer.Serialize(transaction));
 
-            // Validate the transaction using the transaction validator
-            if (!_transactionValidator.IsValid(transaction, out var reasonsTransaction))
-            {
-                var deadLetterMessage = new ServiceBusMessage(JsonSerializer.Serialize(transaction))
-                {
-                    Subject = "ValidationFailed",
-                    ApplicationProperties = { ["Reason"] = string.Join(",", reasonsTransaction) }
-                };
-                var description = $"Transaction validation failed for ID {id}. Reasons: {string.Join(", ", reasonsTransaction)}";
-                await args.DeadLetterMessageAsync(args.Message, "ValidationFailed", description);
-                return;
-            }
-
-            // Validate the transaction using the transaction validator
-            if (!_riskValidator.IsValid(transaction, out var reasonsRisk))
-            {
-                var highRiskMessage = new ServiceBusMessage(JsonSerializer.Serialize(transaction))
-                {
-                    Subject = "HighRiskTransaction",
-                    ApplicationProperties = { ["Reason"] = string.Join(",", reasonsRisk) }
-                };
-
-                await _highRiskSender.SendMessageAsync(highRiskMessage);
-                _logger.LogWarning("Transaction ID {Id} routed to transactions-highrisk queue due to risk validation failure", id);
-            }
+            if (!await ValidateTransactionAsync(transaction, args, id)) return;
+            await ValidateRiskAsync(transaction, id);
 
             await args.CompleteMessageAsync(args.Message);
         }
@@ -103,6 +79,35 @@ public class ValidationWorker : BackgroundService
         }
     }
 
+    private async Task<bool> ValidateTransactionAsync(Transaction transaction, ProcessMessageEventArgs args, string id)
+    {
+        if (_transactionValidator.IsValid(transaction, out var reasons)) return true;
+
+        var deadLetterMessage = new ServiceBusMessage(JsonSerializer.Serialize(transaction))
+        {
+            Subject = "ValidationFailed",
+            ApplicationProperties = { ["Reason"] = string.Join(",", reasons) }
+        };
+
+        var description = $"Transaction validation failed for ID {id}. Reasons: {string.Join(", ", reasons)}";
+        await args.DeadLetterMessageAsync(args.Message, "ValidationFailed", description);
+        _logger.LogWarning("Transaction ID {Id} sent to DeadLetterQueue: {Reasons}", id, string.Join(", ", reasons));
+
+        return false;
+    }
+    private async Task ValidateRiskAsync(Transaction transaction, string id)
+    {
+        if (_riskValidator.IsValid(transaction, out var reasons)) return;
+
+        var highRiskMessage = new ServiceBusMessage(JsonSerializer.Serialize(transaction))
+        {
+            Subject = "HighRiskTransaction",
+            ApplicationProperties = { ["Reason"] = string.Join(",", reasons) }
+        };
+
+        await _highRiskSender.SendMessageAsync(highRiskMessage);
+        _logger.LogWarning("Transaction ID {Id} routed to transactions-highrisk queue due to risk: {Reasons}", id, string.Join(", ", reasons));
+    }
     private Task HandleErrorAsync(ProcessErrorEventArgs args)
     {
         _logger.LogError(args.Exception, "Service Bus Error: {ErrorSource}", args.ErrorSource);
