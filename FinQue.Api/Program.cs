@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using FinQue.Api.Services;
 using Microsoft.Azure.Cosmos;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +24,36 @@ builder.Services.AddSingleton(new CosmosClient(cosmosConnectionString));
 // Register custom services
 builder.Services.AddSingleton<ServiceBusPublisher>();
 
-// MVC and Swagger
+// MVC
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "FinQue API", Version = "v1" });
+
+    c.AddSecurityDefinition("AdminToken", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "X-Admin-Token",
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Admin token required for privileged endpoints"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "AdminToken" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+
 builder.Services.AddSwaggerGen();
 
 if (builder.Environment.IsProduction())
