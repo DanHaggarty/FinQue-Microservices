@@ -30,7 +30,7 @@ namespace ValidationService.Validators
             if (message.Amount <= 0)
                 _errors.Add("Amount must be greater than zero.");
 
-            reasons = _errors.ToList(); // Defensive copy
+            reasons = _errors.ToList();
             return !_errors.Any();
         }
     }

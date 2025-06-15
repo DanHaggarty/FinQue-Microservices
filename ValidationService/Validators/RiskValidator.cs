@@ -12,7 +12,7 @@ namespace ValidationService.Validators
     /// Provides functionality to validate transactions for potential risks.
     /// </summary>
     /// <remarks>This class implements the <see cref="IMessageValidator"/> interface to validate transaction
-    /// messages. It checks for specific conditions, such as missing transaction IDs or invalid amounts, and collects
+    /// messages. It checks for specific conditions, such as amount > 1000 and if currency is crypto, then collects
     /// validation errors if any issues are found.</remarks>
     public class RiskValidator : IMessageValidator
     {
