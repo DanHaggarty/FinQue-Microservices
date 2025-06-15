@@ -44,9 +44,7 @@ namespace FinQue.Tests.Services
             var request = new TransactionRequest
             {
                 Amount = 123.45m,
-                Currency = currency,
-                Source = "A",
-                Destination = "B"
+                Currency = currency
             };
 
             await _publisher.PublishTransactionAsync(request);
@@ -65,9 +63,7 @@ namespace FinQue.Tests.Services
             var request = new TransactionRequest
             {
                 Amount = 100,
-                Currency = "USD",
-                Source = "AccountX",
-                Destination = "AccountY"
+                Currency = "USD"
             };
 
             await _publisher.PublishTransactionAsync(request);
@@ -84,9 +80,7 @@ namespace FinQue.Tests.Services
             TransactionRequest original = new()
             {
                 Amount = 200,
-                Currency = "GBP",
-                Source = "Wallet",
-                Destination = "Bank"
+                Currency = "GBP"
             };
 
             ServiceBusMessage? capturedMessage = null;
@@ -103,8 +97,6 @@ namespace FinQue.Tests.Services
 
             Assert.Equal(original.Amount, deserialized.Amount);
             Assert.Equal(original.Currency, deserialized.Currency);
-            Assert.Equal(original.Source, deserialized.Source);
-            Assert.Equal(original.Destination, deserialized.Destination);
         }
 
 
@@ -117,9 +109,7 @@ namespace FinQue.Tests.Services
             var request = new TransactionRequest
             {
                 Amount = 100,
-                Currency = "USD",
-                Source = "A",
-                Destination = "B"
+                Currency = "USD"
             };
 
             _mockSender
