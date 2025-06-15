@@ -15,6 +15,13 @@ using Container = Microsoft.Azure.Cosmos.Container;
 
 namespace ValidationService;
 
+/// <summary>
+/// A background service that processes and validates financial transactions from a Service Bus queue.
+/// </summary>
+/// <remarks>The <see cref="ValidationWorker"/> listens to an inbound Service Bus queue, validates transactions, 
+/// and routes them to appropriate queues based on validation results. Transactions that fail validation  are sent to a
+/// dead-letter queue, high-risk transactions are routed to a high-risk queue, and successfully  validated transactions
+/// are sent to a validated queue. The service also logs processing details and handles  Service Bus errors.</remarks>
 public class ValidationWorker : BackgroundService
 {
     private readonly ILogger<ValidationWorker> _logger;
