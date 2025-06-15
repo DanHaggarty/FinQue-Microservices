@@ -4,6 +4,7 @@ using FinQue.Api.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Shared.Database;
 
 namespace FinQue.Api.Controllers
 {
@@ -21,15 +22,15 @@ namespace FinQue.Api.Controllers
         private readonly Container _cosmosContainer;
         private readonly ServiceBusClient _serviceBusClient;
         private readonly IConfiguration _config;
-        //private readonly SecretClient _secretClient;
         private readonly ISecretProvider _secretProvider;
         private const string PURGEAUTHORIZATIONTOKENNAME = "PurgeAuthorizationToken";
 
         private static readonly string[] QueueNames = new[]
         {
-        "transactions-inbound",
-        "transactions-highrisk",
-        "transactions-inbound/$DeadLetterQueue"
+            Shared.Messaging.QueueNames.Inbound,
+            Shared.Messaging.QueueNames.HighRisk,
+            Shared.Messaging.QueueNames.DeadLetter,
+            Shared.Messaging.QueueNames.Validated
         };
         public AdminController(
             CosmosClient cosmosClient, 
@@ -38,13 +39,11 @@ namespace FinQue.Api.Controllers
             ISecretProvider secretProvider
             )
         {
-            _cosmosContainer = cosmosClient.GetContainer("finque-cosmos", "Transactions");
+            _cosmosContainer = cosmosClient.GetContainer(CosmosConstants.Databases.FinQue, CosmosConstants.Containers.Transactions);
             _serviceBusClient = serviceBusClient;
             _config = config;
-            //_secretClient = secret;  
             _secretProvider = secretProvider;
         }
-
 
                 /// <summary>
                 /// Purges all queues defined in <see cref="QueueNames"/>.
@@ -57,7 +56,6 @@ namespace FinQue.Api.Controllers
                 [HttpPost("purge")]
                 public async Task<IActionResult> PurgeAll()
                 {
-                    // SECURITY CRITICAL - DO NOT ALTER TOKEN REQUIREMENTS WITHOUT AUTHORIZATION!
                     var purgeAuthorizationToken = await GetPurgeTokenAsync();
                     if (string.IsNullOrEmpty(purgeAuthorizationToken) ||
                         !Request.Headers.TryGetValue("X-Admin-Token", out var providedToken) ||
