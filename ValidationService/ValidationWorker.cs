@@ -2,6 +2,8 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shared.Database;
+using Shared.Messaging;
 using Shared.Models;
 using System.Collections.Concurrent;
 using System.ComponentModel;
@@ -32,14 +34,23 @@ public class ValidationWorker : BackgroundService
         RiskValidator riskValidator)
     {
         _logger = logger;
-        _deadLetterSender = serviceBusClient.CreateSender("transactions-inbound/$DeadLetterQueue");
-        _highRiskSender = serviceBusClient.CreateSender("transactions-highrisk");
-        _validatedSender = serviceBusClient.CreateSender("transactions-validated");
-        _cosmosContainer = cosmosClient.GetContainer("finque-cosmos", "Transactions");
+        //_deadLetterSender = serviceBusClient.CreateSender("transactions-inbound/$DeadLetterQueue");
+        //_highRiskSender = serviceBusClient.CreateSender("transactions-highrisk");
+        //_validatedSender = serviceBusClient.CreateSender("transactions-validated");
+        //_cosmosContainer = cosmosClient.GetContainer("finque-cosmos", "Transactions");
+        //_transactionValidator = transactionValidator;
+        //_riskValidator = riskValidator;
+
+        //_processor = serviceBusClient.CreateProcessor("transactions-inbound", new ServiceBusProcessorOptions
+        
+        _deadLetterSender = serviceBusClient.CreateSender(QueueNames.DeadLetter);
+        _highRiskSender = serviceBusClient.CreateSender(QueueNames.HighRisk);
+        _validatedSender = serviceBusClient.CreateSender(QueueNames.Validated);
+        _cosmosContainer = cosmosClient.GetContainer(CosmosConstants.Databases.FinQue, CosmosConstants.Containers.Transactions);
         _transactionValidator = transactionValidator;
         _riskValidator = riskValidator;
 
-        _processor = serviceBusClient.CreateProcessor("transactions-inbound", new ServiceBusProcessorOptions
+        _processor = serviceBusClient.CreateProcessor(QueueNames.Inbound, new ServiceBusProcessorOptions
         {
             AutoCompleteMessages = false
         });

@@ -1,9 +1,10 @@
-﻿namespace Shared.Messaging;
-
-public static class QueueNames
+﻿namespace Shared.Messaging
 {
-    public const string Inbound = "transactions-inbound";
-    public const string ValidationQueue = "validation-queue";
-    public const string EnrichmentQueue = "enrichment-queue";
-    public const string RoutingQueue = "routing-queue";
+    public static class QueueNames
+    {
+        public const string Inbound = "transactions-inbound";
+        public const string DeadLetter = "transactions-inbound/$DeadLetterQueue";
+        public const string HighRisk = "transactions-highrisk";
+        public const string Validated = "transactions-validated";
+    }
 }
