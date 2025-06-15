@@ -1,4 +1,4 @@
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using FinQue.Api.Services;
 using Microsoft.Azure.Cosmos;
 
@@ -28,14 +28,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80); // Required for Azure App Service for Containers
+});
+
 var app = builder.Build();
 
-// Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
