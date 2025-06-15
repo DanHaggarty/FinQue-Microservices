@@ -31,7 +31,6 @@ namespace FinQue.Api.Controllers
                 id = Guid.NewGuid().ToString(),
                 Amount = request.Amount,
                 Currency = request.Currency,
-                RiskScore = request.RiskScore,
                 Tags = new List<string>()
             };
 
