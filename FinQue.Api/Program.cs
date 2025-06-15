@@ -7,42 +7,38 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Extract configuration values
-var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionString"];
-var queueName = builder.Configuration["ServiceBus:QueueName"];
-var cosmosConnectionString = builder.Configuration["Cosmos:ConnectionString"];
+// === Configuration ===
+var configuration = builder.Configuration;
+var serviceBusConnectionString = configuration["ServiceBus:ConnectionString"];
+var queueName = configuration["ServiceBus:QueueName"];
+var cosmosConnectionString = configuration["Cosmos:ConnectionString"];
+var keyVaultUri = new Uri("https://FinQueKeyVault.vault.azure.net/");
 
-// Register Azure dependencies
+// === Dependency Injection ===
+
+// Azure clients
 builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnectionString));
-builder.Services.AddSingleton<ServiceBusSender>(sp =>
-{
-    var client = sp.GetRequiredService<ServiceBusClient>();
-    return client.CreateSender(queueName);
-});
-builder.Services.AddSingleton(new CosmosClient(cosmosConnectionString));
-builder.Services.AddSingleton<ServiceBusPublisher>();
 builder.Services.AddSingleton(sp =>
-{
-    var vaultUri = new Uri("https://FinQueKeyVault.vault.azure.net/");
-    return new SecretClient(vaultUri, new DefaultAzureCredential());
-});
+    sp.GetRequiredService<ServiceBusClient>().CreateSender(queueName));
+builder.Services.AddSingleton(new CosmosClient(cosmosConnectionString));
+builder.Services.AddSingleton(new SecretClient(keyVaultUri, new DefaultAzureCredential()));
 
-// Register custom services
+// Custom services
+builder.Services.AddSingleton<ServiceBusPublisher>();
 builder.Services.AddSingleton<ISecretProvider, SecretProvider>();
 
-// MVC
+// Controllers and Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "FinQue API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "FinQue API", Version = "v1" });
 
     c.AddSecurityDefinition("AdminToken", new OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
         Name = "X-Admin-Token",
+        In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Description = "Admin token required for privileged endpoints"
     });
@@ -52,25 +48,29 @@ builder.Services.AddSwaggerGen(c =>
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "AdminToken" }
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "AdminToken"
+                }
             },
             Array.Empty<string>()
         }
     });
 });
 
-builder.Services.AddSwaggerGen();
-
+// === Hosting ===
 if (builder.Environment.IsProduction())
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
-        options.ListenAnyIP(80); // Only bind to port 80 in production (Azure)
+        options.ListenAnyIP(80); // Bind to port 80 in production
     });
 
     builder.WebHost.UseUrls("http://0.0.0.0:80");
 }
 
+// === App pipeline ===
 var app = builder.Build();
 
 app.UseSwagger();
@@ -78,6 +78,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
