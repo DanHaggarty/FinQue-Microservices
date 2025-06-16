@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinQue.Api\FinQue.Api.csproj" />
-    <ProjectReference Include="..\RoutingService\RoutingService.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
